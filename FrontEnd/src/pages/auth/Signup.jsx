@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Activity, User, Mail, Lock, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { authService } from '../services/authService';
+import { authService } from '../../services/authService';
 
 const handleSignup = async (e) => {
   e.preventDefault();
