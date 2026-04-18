@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 const Login = () => {
   const [credentials, setCredentials] = useState({
-    identifier: '', // This could be National ID or Email
+    identifier: '',
     password: ''
   });
 
@@ -15,46 +15,51 @@ const Login = () => {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    // Your partner will use this data to query the DB and find the role
-    console.log("Login Attempt:", credentials);
-    alert("Authenticating...");
+    console.log("Authenticating with Backend:", credentials);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-slate-100 px-4">
+      <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
         
-        {/* Brand Header */}
-        <div className="bg-blue-600 p-8 text-center">
-          <div className="inline-flex p-3 bg-white/20 rounded-xl mb-4">
-            <Activity className="text-white h-8 w-8" />
+        {/* Dark Header for high contrast */}
+        <div className="bg-slate-900 p-10 text-center relative">
+          <div className="relative z-10">
+            <div className="inline-flex p-4 bg-blue-600 rounded-2xl mb-4 shadow-lg shadow-blue-900/40">
+              {/* White icon on Blue background = No conflict */}
+              <Activity className="text-white h-8 w-8" />
+            </div>
+            <h1 className="text-2xl font-black text-white tracking-widest uppercase">
+              Somno<span className="text-blue-500">Track</span>
+            </h1>
+            <p className="text-slate-400 text-[10px] font-bold mt-2 uppercase tracking-[0.2em]">
+              Sleep Analysis Management
+            </p>
           </div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">SomnoTrack</h1>
-          <p className="text-blue-100 text-sm mt-1">Medical Sleep Analysis Portal</p>
         </div>
 
-        {/* Login Form */}
-        <form onSubmit={handleLogin} className="p-8 space-y-6">
+        {/* Form Body */}
+        <form onSubmit={handleLogin} className="p-10 space-y-6">
           <div className="space-y-4">
-            <div className="relative">
-              <User className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
+            <div className="relative group">
+              <User className="absolute left-4 top-3.5 h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
               <input 
                 name="identifier"
                 type="text" 
                 placeholder="National ID or Email" 
-                className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
                 onChange={handleInputChange}
                 required
               />
             </div>
 
-            <div className="relative">
-              <Lock className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
+            <div className="relative group">
+              <Lock className="absolute left-4 top-3.5 h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
               <input 
                 name="password"
                 type="password" 
                 placeholder="Password" 
-                className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
                 onChange={handleInputChange}
                 required
               />
@@ -63,17 +68,21 @@ const Login = () => {
 
           <button 
             type="submit" 
-            className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 shadow-md transform active:scale-[0.98] transition-all"
+            className="w-full bg-blue-600 text-white font-black py-4 rounded-xl hover:bg-blue-700 shadow-xl shadow-blue-200 transform active:scale-[0.97] transition-all"
           >
-            Sign In
+            SIGN IN
           </button>
 
-          <div className="text-center pt-2">
+          {/* SIGNUP LINK RESTORED */}
+          <div className="text-center space-y-4 pt-4 border-t border-slate-100">
             <p className="text-slate-500 text-sm">
-              Don't have an account? {' '}
-              <Link to="/signup" className="text-blue-600 font-semibold hover:underline">
-                Sign Up
+              New to the staff?{' '}
+              <Link to="/signup" className="text-blue-600 font-bold hover:text-blue-700 transition-colors">
+                Create an account
               </Link>
+            </p>
+            <p className="text-[9px] text-slate-400 font-medium uppercase tracking-tighter">
+              Authorized Personnel Only
             </p>
           </div>
         </form>
