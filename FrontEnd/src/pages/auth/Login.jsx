@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Activity, Lock, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
+import { authService } from '../../services/authService';
 const Login = () => {
   const [credentials, setCredentials] = useState({
     identifier: '',
@@ -13,10 +13,23 @@ const Login = () => {
     setCredentials(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    console.log("Authenticating with Backend:", credentials);
-  };
+    try {
+        const response = await authService.login(credentials);
+        console.log("Login success:", response);
+        if (response.success) {
+            // Save token and user info
+            localStorage.setItem('token', response.token);
+            localStorage.setItem('user', JSON.stringify(response.user));
+            // Redirect to dashboard
+            window.location.href = '/dashboard';
+        }
+    } catch (error) {
+        console.error("Login failed:", error);
+        alert("Login failed. Check credentials.");
+    }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-100 px-4">

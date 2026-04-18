@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FileText, User, Scale, CheckSquare, Activity, Search } from 'lucide-react';
+import { patientService } from '../../services/patientService';
 
 const SYMPTOMS = [
   "Somnolence diurne excessive", "Ronflements", "Pauses respiratoires nocturnes",
@@ -49,12 +50,30 @@ const AddPatient = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+ const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.nationalId.length < 18) return alert("National ID must be 18 digits.");
-    console.log("Final Patient Profile:", formData);
-    alert("Patient and Medical History saved!");
-  };
+    
+    if (formData.nationalId.length < 18) {
+        alert("National ID must be 18 digits.");
+        return;
+    }
+    
+    try {
+        const response = await patientService.registerPatient(formData);
+        console.log("Patient saved:", response);
+        
+        if (response.success) {
+            alert("Patient registered successfully!");
+            // Optional: Clear form or redirect
+            // window.location.href = '/patients';
+        } else {
+            alert("Failed to save patient: " + response.error);
+        }
+    } catch (error) {
+        console.error("Error saving patient:", error);
+        alert("Cannot connect to server. Is backend running?");
+    }
+};
 
   return (
     <div className="min-h-screen bg-slate-50 py-10 px-4">

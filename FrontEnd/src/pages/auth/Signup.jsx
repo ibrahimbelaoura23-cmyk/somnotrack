@@ -3,19 +3,6 @@ import { Activity, User, Mail, Lock, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { authService } from '../../services/authService';
 
-const handleSignup = async (e) => {
-  e.preventDefault();
-  
-  try {
-    const result = await authService.signup(formData);
-    alert("Account created successfully!");
-    // Redirect to login or dashboard
-  } catch (error) {
-    console.error("Signup failed", error);
-    alert(error.response?.data?.message || "An error occurred");
-  }
-};
-
 const Signup = () => {
   const [formData, setFormData] = useState({
     firstName: '',
@@ -25,30 +12,48 @@ const Signup = () => {
     password: '',
     confirmPassword: ''
   });
+  const [loading, setLoading] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     
-    // Lexical Rule: Names (Letters and hyphens only)
     if ((name === 'firstName' || name === 'lastName') && !/^[a-zA-ZÀ-ÿ-\s]*$/.test(value)) return;
     
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSignup = (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
+    
     if (formData.password !== formData.confirmPassword) {
       alert("Passwords do not match!");
       return;
     }
-    console.log("Account Creation Request:", formData);
+    
+    setLoading(true);
+    
+    try {
+      const response = await authService.signup(formData);
+      console.log("Signup response:", response);
+      
+      if (response.success) {
+        alert("Account created successfully! Redirecting to login...");
+        window.location.href = '/login';
+      } else {
+        alert("Signup failed: " + (response.error || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Signup error:", error);
+      alert("Cannot connect to server. Is backend running?");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-100 py-12 px-4">
       <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
         
-        {/* Dark High-Contrast Header */}
         <div className="bg-slate-900 p-8 text-center relative">
           <div className="relative z-10">
             <div className="inline-flex p-3 bg-blue-600 rounded-xl mb-3 shadow-lg shadow-blue-900/40">
@@ -65,7 +70,6 @@ const Signup = () => {
 
         <form onSubmit={handleSignup} className="p-8 space-y-5">
           
-          {/* First & Last Name Row */}
           <div className="grid grid-cols-2 gap-4">
             <div className="relative group">
               <User className="absolute left-3 top-3 h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
@@ -85,40 +89,38 @@ const Signup = () => {
             </div>
           </div>
 
-          {/* Email */}
           <div className="relative group">
             <Mail className="absolute left-4 top-3.5 h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
             <input 
               name="email" type="email" placeholder="Professional Email" 
               className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
-              onChange={handleInputChange} required
+              onChange={handleInputChange} value={formData.email} required
             />
           </div>
 
-          {/* Role Selection - Technicians removed */}
           <div className="relative group">
             <ShieldCheck className="absolute left-4 top-3.5 h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
             <select 
               name="role"
               className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all appearance-none text-slate-600 font-medium cursor-pointer"
               onChange={handleInputChange}
+              value={formData.role}
               required
             >
-              <option value="" disabled selected>Select Professional Role</option>
+              <option value="" disabled>Select Professional Role</option>
               <option value="doctor">Medical Doctor (MD)</option>
               <option value="nurse">Clinical Nurse</option>
               <option value="admin">System Administrator</option>
             </select>
           </div>
 
-          {/* Passwords */}
           <div className="space-y-4">
             <div className="relative group">
               <Lock className="absolute left-4 top-3.5 h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
               <input 
                 name="password" type="password" placeholder="Password" 
                 className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
-                onChange={handleInputChange} required
+                onChange={handleInputChange} value={formData.password} required
               />
             </div>
             <div className="relative group">
@@ -126,16 +128,17 @@ const Signup = () => {
               <input 
                 name="confirmPassword" type="password" placeholder="Confirm Password" 
                 className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
-                onChange={handleInputChange} required
+                onChange={handleInputChange} value={formData.confirmPassword} required
               />
             </div>
           </div>
 
           <button 
-            type="submit" 
-            className="w-full bg-blue-600 text-white font-black py-4 rounded-xl hover:bg-blue-700 shadow-xl shadow-blue-200 transform active:scale-[0.97] transition-all mt-2"
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-600 text-white font-black py-4 rounded-xl hover:bg-blue-700 shadow-xl shadow-blue-200 transform active:scale-[0.97] transition-all mt-2 disabled:opacity-50"
           >
-            CREATE ACCOUNT
+            {loading ? 'CREATING ACCOUNT...' : 'CREATE ACCOUNT'}
           </button>
 
           <div className="text-center pt-4 border-t border-slate-100">
