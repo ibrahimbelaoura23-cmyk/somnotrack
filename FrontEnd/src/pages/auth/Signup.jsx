@@ -1,6 +1,20 @@
 import React, { useState } from 'react';
 import { Activity, User, Mail, Lock, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { authService } from '../services/authService';
+
+const handleSignup = async (e) => {
+  e.preventDefault();
+  
+  try {
+    const result = await authService.signup(formData);
+    alert("Account created successfully!");
+    // Redirect to login or dashboard
+  } catch (error) {
+    console.error("Signup failed", error);
+    alert(error.response?.data?.message || "An error occurred");
+  }
+};
 
 const Signup = () => {
   const [formData, setFormData] = useState({
