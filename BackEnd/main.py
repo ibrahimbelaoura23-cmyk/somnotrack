@@ -132,6 +132,8 @@ def signup():
 # =============================================
 # PATIENT ROUTES
 # =============================================
+
+# GET all patients
 @app.route('/api/patients', methods=['GET'])
 def get_patients():
     result = supabase_request("GET", "patients?select=*&order=created_at.desc")
@@ -139,6 +141,7 @@ def get_patients():
         return jsonify([])
     return jsonify(result)
 
+# POST add patient
 @app.route('/api/patients/add', methods=['POST'])
 def add_patient():
     data = request.json
@@ -158,8 +161,8 @@ def add_patient():
         "last_name": data['lastName'],
         "national_id": data['nationalId'],
         "phone": data['phone'],
-        "weight": data.get('weight'),
-        "height": data.get('height'),
+        "weight": float(data['weight']) if data.get('weight') else None,
+        "age": int(data['age']) if data.get('age') else None,
         "symptoms": data.get('selectedSymptoms', []),
         "antecedents": data.get('selectedAntecedents', [])
     }
@@ -174,13 +177,65 @@ def add_patient():
         "message": "Patient registered successfully"
     }), 201
 
+# GET single patient by ID
 @app.route('/api/patients/<int:patient_id>', methods=['GET'])
-def get_patient(patient_id):
+def get_single_patient(patient_id):
     result = supabase_request("GET", f"patients?id=eq.{patient_id}&select=*")
+    
     if isinstance(result, list) and len(result) > 0:
         return jsonify(result[0])
+    
     return jsonify({"success": False, "error": "Patient not found"}), 404
 
+# PUT update patient
+@app.route('/api/patients/<int:patient_id>', methods=['PUT'])
+def update_patient(patient_id):
+    data = request.json
+    
+    # Check if patient exists
+    check = supabase_request("GET", f"patients?id=eq.{patient_id}&select=id")
+    if not isinstance(check, list) or len(check) == 0:
+        return jsonify({"success": False, "error": "Patient not found"}), 404
+    
+    # Build update data
+    update_data = {}
+    if data.get('firstName'):
+        update_data['first_name'] = data['firstName']
+    if data.get('lastName'):
+        update_data['last_name'] = data['lastName']
+    if data.get('phone'):
+        update_data['phone'] = data['phone']
+    if data.get('weight'):
+        update_data['weight'] = float(data['weight'])
+    if data.get('age'):
+        update_data['age'] = int(data['age'])
+    if data.get('selectedSymptoms'):
+        update_data['symptoms'] = data['selectedSymptoms']
+    if data.get('selectedAntecedents'):
+        update_data['antecedents'] = data['selectedAntecedents']
+    
+    result = supabase_request("PUT", f"patients?id=eq.{patient_id}", data=update_data)
+    
+    if isinstance(result, dict) and result.get('error'):
+        return jsonify({"success": False, "error": "Failed to update patient"}), 500
+    
+    return jsonify({
+        "success": True,
+        "message": "Patient updated successfully"
+    }), 200
+
+# DELETE patient
+@app.route('/api/patients/<int:patient_id>', methods=['DELETE'])
+def delete_patient(patient_id):
+    result = supabase_request("DELETE", f"patients?id=eq.{patient_id}")
+    
+    if isinstance(result, dict) and result.get('error'):
+        return jsonify({"success": False, "error": "Failed to delete patient"}), 500
+    
+    return jsonify({
+        "success": True,
+        "message": f"Patient {patient_id} deleted successfully"
+    }), 200
 # =============================================
 # START SERVER
 # =============================================
