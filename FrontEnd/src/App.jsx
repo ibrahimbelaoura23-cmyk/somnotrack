@@ -5,6 +5,7 @@ import Signup from './pages/auth/Signup';
 import NurseDashboard from './pages/dashboard/NurseDashboard';
 import DoctorDashboard from './pages/dashboard/DoctorDashboard';
 import AddPatient from './pages/patients/AddPatient';
+import PatientConsultation from './pages/patients/PatientConsultation';
 
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
         <Route path="/nurse-dashboard" element={<NurseDashboard />} />
         <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
         <Route path="/add-patient" element={<AddPatient />} />
+        <Route path="/patient/:id" element={<PatientConsultation />} />
 
         {/* 4. TEMPORARY: Comment this out to stop the redirect loop while debugging */}
         {/* <Route path="*" element={<Navigate to="/login" replace />} /> */}

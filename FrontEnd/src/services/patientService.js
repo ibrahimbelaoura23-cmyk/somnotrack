@@ -1,31 +1,48 @@
 import apiClient from './api';
 
 export const patientService = {
-  // Register a new patient (Admin/Doctor Only)
+  // Register a new patient
   registerPatient: async (patientData) => {
     try {
-      // Logic: Maps the frontend symptoms to what Flask expects
       const response = await apiClient.post('/patients/add', patientData);
       return response.data;
     } catch (error) {
       console.error("Service Error: registerPatient failed", error);
-      throw error; // Pass the error back to the component to show the alert
+      throw error;
     }
   },
 
-  // Get list of patients (Used by Nurse/Doctor Dashboards)
+  // Get list of all patients
   getAllPatients: async () => {
     try {
       const response = await apiClient.get('/patients');
-      
-      /* SAFETY CHECK: 
-         Your Flask backend returns the list directly. 
-         Axios puts it in response.data.
-      */
       return response.data || []; 
     } catch (error) {
       console.error("Service Error: getAllPatients failed", error);
-      return []; // Return empty array so the dashboard doesn't crash
+      return []; 
+    }
+  },
+
+  // --- NEW: Get a single patient's full dossier ---
+  getPatientById: async (id) => {
+    try {
+      // Logic: Fetches specific data for the Consultation page
+      const response = await apiClient.get(`/patients/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Service Error: Failed to fetch patient ${id}`, error);
+      throw error;
+    }
+  },
+
+  // --- NEW: Delete patient record ---
+  deletePatient: async (id) => {
+    try {
+      const response = await apiClient.delete(`/patients/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Service Error: Failed to delete patient ${id}`, error);
+      throw error;
     }
   }
 };

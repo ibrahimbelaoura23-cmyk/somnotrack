@@ -14,43 +14,42 @@ const Login = () => {
   };
 
   const handleLogin = async (e) => {
-  e.preventDefault();
-  setIsLoading(true);
+    e.preventDefault();
+    setIsLoading(true);
 
-  try {
-    const result = await authService.login(credentials);
-    const response = result.data || result; 
+    try {
+      const result = await authService.login(credentials);
+      const response = result.data || result; 
 
-    // 1. DRILL DOWN: The backend sent a 'user' object
-    // We look inside 'response.user' to find the 'role'
-    const userData = response.user || {};
-    const rawRole = userData.role; 
+      const userData = response.user || {};
+      const rawRole = userData.role; 
+      const userRole = rawRole ? String(rawRole).toLowerCase().trim() : null;
 
-    // 2. NORMALIZE
-    const userRole = rawRole ? String(rawRole).toLowerCase().trim() : null;
+      console.log("Found Role:", userRole);
 
-    console.log("Found Role:", userRole);
+      if (userRole === 'nurse' || userRole === 'doctor') {
+        // --- THE MISSING LINK ---
+        // We save the WHOLE user object (firstName, lastName, etc.)
+        localStorage.setItem('user', JSON.stringify(userData)); 
+        
+        localStorage.setItem('userRole', userRole);
+        localStorage.setItem('token', response.token);
 
-    if (userRole === 'nurse') {
-      localStorage.setItem('userRole', 'nurse');
-      localStorage.setItem('token', response.token); // Save the token too!
-      navigate('/nurse-dashboard');
-    } else if (userRole === 'doctor') {
-      localStorage.setItem('userRole', 'doctor');
-      localStorage.setItem('token', response.token);
-      navigate('/doctor-dashboard');
-    } else {
-      // If it still fails, this will show us exactly what's inside the 'user' object
-      const userKeys = Object.keys(userData).join(', ');
-      alert(`Role check failed.\nUser object contains: ${userKeys}\nValue of role: ${rawRole}`);
+        // Redirect based on role
+        if (userRole === 'nurse') navigate('/nurse-dashboard');
+        else navigate('/doctor-dashboard');
+        
+      } else {
+        const userKeys = Object.keys(userData).join(', ');
+        alert(`Role check failed.\nUser object contains: ${userKeys}\nValue of role: ${rawRole}`);
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      alert("Login failed. Check your credentials.");
+    } finally {
+      setIsLoading(false);
     }
-  } catch (error) {
-    console.error("Login error:", error);
-    alert("Login failed. Check your credentials.");
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
   return (
     // The "bg-slate-100" ensures the background is LIGHT GREY, not blue.
